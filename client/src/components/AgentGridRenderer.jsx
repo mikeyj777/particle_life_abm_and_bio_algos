@@ -26,7 +26,7 @@ const AgentGridRenderer = ({ agents }) => {
         ctx.arc(
           agent.x,
           agent.y,
-          agent.diameter / 2,
+          agent.radius,
           0,
           2 * Math.PI
         );
@@ -37,7 +37,7 @@ const AgentGridRenderer = ({ agents }) => {
       // Increment frame count
       setFrameCount(frameCount + 1);
 
-      
+
 
       // Request next frame
       animationFrameRef.current = requestAnimationFrame(animate);

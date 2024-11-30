@@ -1,22 +1,23 @@
+// src/components/TestAgentGrid.jsx
+
 import React, { useState } from 'react';
 import AgentGridRenderer from './AgentGridRenderer';
 import Agent from '../classes/Agent';
 
 const TestAgentGrid = () => {
   const [agents, setAgents] = useState([]);
+  const [brownianEnabled, setBrownianEnabled] = useState(false);
   const GRID_SIZE = 800;
 
   const addRandomAgent = () => {
-    const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF'];
-    // constructor(gridSize, id = 0, color = '#FF0000', x = -1, y = -1, radius = -1, brownian = false)
     const newAgent = new Agent(
       GRID_SIZE,
       agents.length,
-      colors[Math.floor(Math.random() * colors.length)],
       -1,
       -1,
       -1,
-      true
+      -1,
+      brownianEnabled
     );
     setAgents([...agents, newAgent]);
   };
@@ -28,12 +29,12 @@ const TestAgentGrid = () => {
       newAgents.push(
         new Agent(
           GRID_SIZE,
-          agents.length,
-          colors[Math.floor(Math.random() * colors.length)],
+          newAgents.length,
           -1,
           -1,
           -1,
-          true
+          -1,
+          brownianEnabled
         )
       );
     }
@@ -42,6 +43,15 @@ const TestAgentGrid = () => {
 
   const clearAgents = () => {
     setAgents([]);
+  };
+
+  const toggleBrownian = () => {
+    // const updatedAgents = agents.map(agent => {
+    //   agent.brownian = !brownianEnabled;
+    //   return agent;
+    // });
+    setBrownianEnabled(!brownianEnabled);
+    // setAgents([...updatedAgents]); // Create new reference to trigger update
   };
 
   return (
@@ -53,6 +63,16 @@ const TestAgentGrid = () => {
       <div className="control-panel">
         <h2>Agent Controls</h2>
         
+        <div className="control-section">
+          <h3>Motion Control</h3>
+          <button 
+            onClick={toggleBrownian}
+            className={brownianEnabled ? 'active' : ''}
+          >
+            Brownian Motion: {brownianEnabled ? 'ON' : 'OFF'}
+          </button>
+        </div>
+
         <div className="control-section">
           <h3>Add Agents</h3>
           <button onClick={addRandomAgent}>Add Single Agent</button>
