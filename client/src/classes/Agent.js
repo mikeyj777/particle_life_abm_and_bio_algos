@@ -35,11 +35,8 @@ export default class Agent {
     }
 
     if (this.mobile && !this.velocity) {
-      this.velocity = {
-        x: Math.floor(this.maxVelocity * Math.random()),
-        y: Math.floor(this.maxVelocity * Math.random())
-      };
-    } 
+      this.setVelocity();
+    }
   }
 
   getColor() {
@@ -92,6 +89,13 @@ export default class Agent {
     if (yNew >= 0 && yNew < this.gridSize) {
       this.y = yNew;
     }
+  }
+
+  setVelocity() {
+    this.velocity = {
+      x: Math.floor(Math.random() * this.maxVelocity) - this.maxVelocity / 2,
+      y: Math.floor(Math.random() * this.maxVelocity) - this.maxVelocity / 2
+    };
   }
 
   move() {
