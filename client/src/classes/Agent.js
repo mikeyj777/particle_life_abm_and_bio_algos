@@ -1,5 +1,5 @@
 export default class Agent {
-  constructor(gridSize, id = 0, color = -1, x = -1, y = -1, radius = -1, brownian = false) {
+  constructor(gridSize, id = 0, color = -1, x = -1, y = -1, radius = -1, brownian = false, mobile = false, velocity = null, maxVelocity = 5) {
     this.gridSize = gridSize;
     this.id = id;
     this.color = color;
@@ -8,6 +8,9 @@ export default class Agent {
     this.y = y;
     this.radius = radius;
     this.brownian = brownian;
+    this.velocity = velocity;
+    this.maxVelocity = maxVelocity;
+    this.mobile = mobile;
     this.initialize()
   }
 
@@ -30,6 +33,13 @@ export default class Agent {
     if (this.brownian !== true) {
       this.brownian = false;
     }
+
+    if (this.mobile && !this.velocity) {
+      this.velocity = {
+        x: Math.floor(this.maxVelocity * Math.random()),
+        y: Math.floor(this.maxVelocity * Math.random())
+      };
+    } 
   }
 
   getColor() {
@@ -68,6 +78,9 @@ export default class Agent {
     if (this.brownian) {
       this.applyBrownianMotion();
     }
+    if (this.mobile) {
+      this.move();
+    }
   }
 
   applyBrownianMotion() {
@@ -79,5 +92,32 @@ export default class Agent {
     if (yNew >= 0 && yNew < this.gridSize) {
       this.y = yNew;
     }
+  }
+
+  move() {
+    // Calculate new position
+    let newX = this.x + this.velocity.x;
+    let newY = this.y + this.velocity.y;
+    
+    // Handle bounds collision
+    if (newX < 0) {
+        newX = 0;
+        this.velocity.x *= -1;
+    } else if (newX >= this.gridSize) {
+        newX = this.gridSize - 1;
+        this.velocity.x *= -1;
+    }
+    
+    if (newY < 0) {
+        newY = 0;
+        this.velocity.y *= -1;
+    } else if (newY >= this.gridSize) {
+        newY = this.gridSize - 1;
+        this.velocity.y *= -1;
+    }
+    
+    // Update position
+    this.x = newX;
+    this.y = newY;
   }
 }

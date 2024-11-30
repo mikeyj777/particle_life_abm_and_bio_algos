@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const AgentGridRenderer = ({ agents }) => {
+const AgentGridRenderer = ({ agents , GRID_SIZE}) => {
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
   const [frameCount, setFrameCount] = useState(0);
-  const GRID_SIZE = 800;
 
   useEffect(() => {
     const canvas = canvasRef.current;

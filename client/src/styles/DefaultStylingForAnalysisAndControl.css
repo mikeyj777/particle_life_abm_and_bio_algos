@@ -181,3 +181,14 @@ input[type="range"]:hover::-moz-range-thumb {
     font-size: 24px;
   }
 }
+
+.full-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.model-specific-controls {
+  margin-top: 20px;
+  padding: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
