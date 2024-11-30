@@ -3,5 +3,5 @@
 /* this is only imported as an example.  For an actual app, remove the home 
 import and include all other component stylesheets for reference */
 
-@import './Home.css';
-
+@import './AgentGridRenderer.css';
+@import './TestAgentGrid.css';

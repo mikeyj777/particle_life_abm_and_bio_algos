@@ -1,0 +1,18 @@
+.agent-grid-canvas {
+  border: 1px solid #ccc;
+  background-color: #ffffff;
+  display: block;
+  /* ensures the canvas doesn't get stretched or distorted */
+  image-rendering: pixelated;
+  /* prevents default browser handling of drag events on canvas */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Container class that can be used by parent components if needed */
+.agent-grid-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
