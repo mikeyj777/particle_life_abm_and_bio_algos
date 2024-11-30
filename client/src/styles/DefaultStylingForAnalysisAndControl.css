@@ -1,0 +1,183 @@
+.visualization-panel {
+  flex: 1;
+  min-width: 800px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.control-panel {
+  width: 300px;
+  padding: 40px;
+  background: white;
+  color: black;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  position: relative;
+  transition: all 0.3s ease;
+  overflow-y: auto;
+}
+
+.control-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: black;
+  opacity: 0.1;
+}
+
+.control-panel h2 {
+  margin: 0 0 40px 0;
+  font-size: 32px;
+  font-weight: 200;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.control-panel h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 300;
+  color: #666;
+  letter-spacing: -0.3px;
+}
+
+.control-section {
+  margin-bottom: 60px;
+  position: relative;
+  padding-bottom: 40px;
+}
+
+.control-section:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 20px;
+  height: 1px;
+  background: black;
+  opacity: 0.1;
+}
+
+.control-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.control-section button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: white;
+  color: black;
+  border: 1px solid black;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.control-section button:hover {
+  background: black;
+  color: white;
+}
+
+.control-section button.active {
+  background: black;
+  color: white;
+}
+
+.control-section button.active:hover {
+  opacity: 0.8;
+}
+
+.stat-item {
+  padding: 20px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 300;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  border-color: black;
+  color: black;
+}
+
+/* Range input styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 1px;
+  background: black;
+  outline: none;
+  margin: 20px 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: black;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: black;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.3s ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.5);
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+  transform: scale(1.5);
+}
+
+/* Custom scrollbar for control panel */
+.control-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.control-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.control-panel::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+}
+
+.control-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 1200px) {
+  .test-container {
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  .control-panel {
+    padding: 20px;
+  }
+  
+  .control-panel h2 {
+    font-size: 24px;
+  }
+}

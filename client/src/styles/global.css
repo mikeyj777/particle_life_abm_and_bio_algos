@@ -4,4 +4,14 @@
 import and include all other component stylesheets for reference */
 
 @import './AgentGridRenderer.css';
-@import './TestAgentGrid.css';
+@import './DefaultStylingForAnalysisAndControl.css';
+
+
+/* global styling */
+
+.container {
+  display: flex;
+  gap: 20px;
+  height: 100vh;
+  padding: 20px;
+}

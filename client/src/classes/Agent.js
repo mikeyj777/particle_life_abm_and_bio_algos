@@ -3,6 +3,7 @@ export default class Agent {
     this.gridSize = gridSize;
     this.id = id;
     this.color = color;
+    this.originalColor = color;
     this.x = x;
     this.y = y;
     this.radius = radius;
@@ -24,6 +25,10 @@ export default class Agent {
     }
     if (this.color === -1) {
       this.getColor();
+    }
+
+    if (this.brownian !== true) {
+      this.brownian = false;
     }
   }
 
@@ -50,13 +55,13 @@ export default class Agent {
       '#00FA9A', // MediumSpringGreen - Bright mint
       '#C71585'  // MediumVioletRed - Deep magenta
     ];
-    
+
     if (this.id < 0) {
       this.color = Math.floor(Math.random() * colors.length);
       return;
     }
     this.color = colors[this.id % colors.length];
-    
+    this.originalColor = this.color;
   }
   
   internalSteps() {
