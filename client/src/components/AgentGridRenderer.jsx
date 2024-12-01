@@ -32,7 +32,6 @@ const AgentGridRenderer = ({ agents , GRID_SIZE}) => {
         ctx.fill();
       });
       
-      console.log("Frame count:", frameCount);
       // Increment frame count
       setFrameCount(frameCount + 1);
 

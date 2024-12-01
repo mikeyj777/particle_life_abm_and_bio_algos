@@ -27,8 +27,6 @@ const Swarm = () => {
   const [alignment, setAlignment] = useState(1.0);
   const [cohesion, setCohesion] = useState(1.0);
 
-
-
   // Swarm-specific states
   const [agents, setAgents] = useState([]);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -50,7 +48,7 @@ const Swarm = () => {
         -1,
         currentParticleRadius,
         false,
-        true,
+        false,
         null,
         5
       );
@@ -62,7 +60,7 @@ const Swarm = () => {
   // Initialize simulation when component mounts
   useEffect(() => {
     handleReset(numAgents, particleRadius);
-  }, []);
+  }, [handleReset, numAgents]);
 
   // Main DLA simulation
   useEffect(() => {
@@ -80,11 +78,20 @@ const Swarm = () => {
     }
 
     let animationFrameId;
-    
+
     const animate = () => {
       setAgents(currentAgents => {
-        const updatedAgents = [...currentAgents];
-        
+        const newAgents = [];
+        for (const agent of currentAgents) {
+          agent.separationWeight = separation;
+          agent.alignmentWeight = alignment;
+          agent.cohesionWeight = cohesion;
+          agent.perceptionRadius = perceptionRadius;
+          agent.particleRadius = particleRadius;
+          agent.flockingControl(currentAgents);
+          newAgents.push(agent);
+        }
+        return newAgents;
       });
 
       if (isRunning) {
@@ -99,7 +106,7 @@ const Swarm = () => {
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [isRunning, isInitialized, diffusionRadius, agents, aggregatedAgents]);
+  }, [isRunning, isInitialized, numAgents, particleRadius, separation, alignment, cohesion]);
 
   return (
     <div className="full-container">
@@ -136,7 +143,7 @@ const Swarm = () => {
           <input
             type="range"
             value={separation}
-            onChange={(e) => setSeparation(parseInt(e.target.value))}
+            onChange={(e) => setSeparation(parseFloat(e.target.value))}
             min={0}
             max={3}
             step={0.1}
@@ -151,7 +158,7 @@ const Swarm = () => {
           <input
             type="range"
             value={cohesion}
-            onChange={(e) => setCohesion(parseInt(e.target.value))}
+            onChange={(e) => setCohesion(parseFloat(e.target.value))}
             min={0}
             max={1}
             step={0.1}
@@ -166,7 +173,7 @@ const Swarm = () => {
           <input
             type="range"
             value={alignment}
-            onChange={(e) => setAlignment(parseInt(e.target.value))}
+            onChange={(e) => setAlignment(parseFloat(e.target.value))}
             min={0}
             max={1}
             step={0.1}

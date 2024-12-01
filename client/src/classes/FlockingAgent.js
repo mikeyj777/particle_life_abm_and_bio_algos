@@ -25,6 +25,7 @@ export default class FlockingAgent extends Agent {
     this.turnFactor = 0.3;
     this.minSpeed = 2.0;
     this.edgeMargin = 50;
+    this.position = new Vector2(this.x, this.y);
   }
 
   setVelocity() {
@@ -68,7 +69,7 @@ export default class FlockingAgent extends Agent {
 
   }
 
-  flockingSteps(agents) {
+  flockingControl(agents) {
     this.position = new Vector2(this.x, this.y);
     this.acceleration = new Vector2(0, 0);
     const separationForce = this.separate(agents).multiply(this.separationWeight);
@@ -80,8 +81,14 @@ export default class FlockingAgent extends Agent {
     this.velocity = this.velocity.add(this.acceleration);
     this.velocity.limit(this.maxVelocity);
     this.position = this.position.add(this.velocity);
+    this.position.x = (this.position.x + this.gridSize) % this.gridSize;
+    this.position.y = (this.position.y + this.gridSize) % this.gridSize;
     this.x = this.position.x;
     this.y = this.position.y;
+  }
+
+  internalSteps(agents) {
+    return;
   }
 
   separate(agents) {
@@ -102,7 +109,7 @@ export default class FlockingAgent extends Agent {
     }
     if (count > 0) {
 
-      steering.multiply(1 / count);
+      steering = steering.multiply(1 / count);
       // reynolds - steering = desired - velocity
       if (steering.magnitude() > 0) {
         steering = steering.normalize();
