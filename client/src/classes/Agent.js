@@ -93,8 +93,8 @@ export default class Agent {
 
   setVelocity() {
     this.velocity = {
-      x: Math.floor(Math.random() * this.maxVelocity) - this.maxVelocity / 2,
-      y: Math.floor(Math.random() * this.maxVelocity) - this.maxVelocity / 2
+      x: Math.floor(Math.random() * this.maxVelocity),
+      y: Math.floor(Math.random() * this.maxVelocity)
     };
   }
 

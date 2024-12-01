@@ -14,7 +14,7 @@ const BASE_BOIDS_PARAMS = {
   edgeMargin: 30
 }
 
-const DiffusionLimitedAggregation_usingTemplate = () => {
+const Swarm = () => {
   // Grid configuration
   const GRID_SIZE = 800;
 
@@ -184,4 +184,4 @@ const DiffusionLimitedAggregation_usingTemplate = () => {
   );
 };
 
-export default DiffusionLimitedAggregation_usingTemplate;
+export default Swarm;
