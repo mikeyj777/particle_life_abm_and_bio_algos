@@ -4,11 +4,11 @@ import TemplateGridAndControls from './TemplateGridAndControls';
 
 const BASE_BOIDS_PARAMS = {
   maxForce: 0.1,
-  separation: 1.5,
-  alignment: 1.0,
-  cohesion: 1.0,
+  separation: [0.25, 0.5, 1.0, 2.0, 3.0],
+  alignment: [3.0, 2.0, 1.0, 0.5, 0.25],
+  cohesion: [1.0, 2.0, 3.0, 0.5, 0.25],
   perceptionRadius: 50,
-  desiredSeparation: 25,
+  desiredSeparation: [10, 20, 30, 40, 50],
   turnFactor: 0.1,
   minSpeed: 0.5,
   edgeMargin: 30
@@ -23,9 +23,9 @@ const Swarm = () => {
   const [particleRadius, setParticleRadius] = useState(10);
   const [isRunning, setIsRunning] = useState(false);
   const [perceptionRadius, setPerceptionRadius] = useState(50);
-  const [separation, setSeparation] = useState(1.5);
-  const [alignment, setAlignment] = useState(1.0);
-  const [cohesion, setCohesion] = useState(1.0);
+  // const [separation, setSeparation] = useState(1.5);
+  // const [alignment, setAlignment] = useState(1.0);
+  // const [cohesion, setCohesion] = useState(1.0);
 
   // Swarm-specific states
   const [agents, setAgents] = useState([]);
@@ -83,10 +83,10 @@ const Swarm = () => {
       setAgents(currentAgents => {
         const newAgents = [];
         for (const agent of currentAgents) {
-          agent.separationWeight = separation;
-          agent.alignmentWeight = alignment;
-          agent.cohesionWeight = cohesion;
-          agent.perceptionRadius = perceptionRadius;
+          // agent.separationWeight = separation;
+          // agent.alignmentWeight = alignment;
+          // agent.cohesionWeight = cohesion;
+          // agent.perceptionRadius = perceptionRadius;
           agent.particleRadius = particleRadius;
           agent.flockingControl(currentAgents);
           newAgents.push(agent);
@@ -106,8 +106,8 @@ const Swarm = () => {
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [isRunning, isInitialized, numAgents, particleRadius, separation, alignment, cohesion]);
-
+  }, [isRunning, isInitialized, numAgents] //, separation, alignment, cohesion]
+);
   return (
     <div className="full-container">
       <TemplateGridAndControls
@@ -138,7 +138,7 @@ const Swarm = () => {
           </div>
         </div>
 
-        <div className="control-section">
+        {/* <div className="control-section">
           <label>Separation:</label>
           <input
             type="range"
@@ -160,7 +160,7 @@ const Swarm = () => {
             value={cohesion}
             onChange={(e) => setCohesion(parseFloat(e.target.value))}
             min={0}
-            max={1}
+            max={3}
             step={0.1}
           />
           <div className="stat-item">
@@ -175,13 +175,13 @@ const Swarm = () => {
             value={alignment}
             onChange={(e) => setAlignment(parseFloat(e.target.value))}
             min={0}
-            max={1}
+            max={3}
             step={0.1}
           />
           <div className="stat-item">
             Alignment: {alignment}
           </div>
-        </div>
+        </div> */}
 
         <div className="stat-item">
           Particles: {agents.length}

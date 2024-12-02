@@ -68,8 +68,8 @@ const TemplateGridAndControls = ({
               setNumAgents(value);
               handleReset(value, particleRadius);
             }}
-            min={0}
-            max={1000}
+            min={10}
+            max={300}
             step={10}
           />
           <div className="stat-item">

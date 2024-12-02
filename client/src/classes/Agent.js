@@ -1,3 +1,26 @@
+const COLOR_ARRAY = [
+  '#FF4500', // OrangeRed - A vibrant, energetic orange
+  '#4B0082', // Indigo - Deep, mysterious purple
+  '#00CED1', // DarkTurquoise - Bright aqua blue
+  '#FF1493', // DeepPink - Intense hot pink
+  '#32CD32', // LimeGreen - Fresh, vibrant green
+  '#8B4513', // SaddleBrown - Rich earth tone
+  '#9932CC', // DarkOrchid - Deep, royal purple
+  '#FFD700', // Gold - Bright, metallic yellow
+  '#DC143C', // Crimson - Deep, passionate red
+  '#20B2AA', // LightSeaGreen - Calming teal
+  '#FF6347', // Tomato - Bright coral red
+  '#4169E1', // RoyalBlue - Classic rich blue
+  '#DAA520', // Goldenrod - Warm, antique gold
+  '#8A2BE2', // BlueViolet - Rich violet purple
+  '#2E8B57', // SeaGreen - Deep forest green
+  '#FF8C00', // DarkOrange - Rich sunset orange
+  '#BA55D3', // MediumOrchid - Bright lavender
+  '#CD853F', // Peru - Warm terracotta
+  '#00FA9A', // MediumSpringGreen - Bright mint
+  '#C71585'  // MediumVioletRed - Deep magenta
+];
+
 export default class Agent {
   constructor(gridSize, id = 0, color = -1, x = -1, y = -1, radius = -1, brownian = false, mobile = false, velocity = null, maxVelocity = 5) {
     this.gridSize = gridSize;
@@ -11,6 +34,7 @@ export default class Agent {
     this.velocity = velocity;
     this.maxVelocity = maxVelocity;
     this.mobile = mobile;
+    this.colors = COLOR_ARRAY;
     this.initialize()
   }
 
@@ -26,8 +50,11 @@ export default class Agent {
       const minRadius = Math.floor(this.gridSize / 100);
       this.radius = Math.floor(Math.random() * (maxRadius - minRadius)) + minRadius;
     }
+    // console.log("in base initialize.  this.color: ", this.color);
     if (this.color === -1) {
-      this.getColor();
+      // console.log("in base initialize.  this.color: ", this.color);
+      this.getColorBase();
+      // console.log("this.color: ", this.color);
     }
 
     if (this.brownian !== true) {
@@ -39,35 +66,13 @@ export default class Agent {
     }
   }
 
-  getColor() {
-    const colors = [
-      '#FF4500', // OrangeRed - A vibrant, energetic orange
-      '#4B0082', // Indigo - Deep, mysterious purple
-      '#00CED1', // DarkTurquoise - Bright aqua blue
-      '#FF1493', // DeepPink - Intense hot pink
-      '#32CD32', // LimeGreen - Fresh, vibrant green
-      '#8B4513', // SaddleBrown - Rich earth tone
-      '#9932CC', // DarkOrchid - Deep, royal purple
-      '#FFD700', // Gold - Bright, metallic yellow
-      '#DC143C', // Crimson - Deep, passionate red
-      '#20B2AA', // LightSeaGreen - Calming teal
-      '#FF6347', // Tomato - Bright coral red
-      '#4169E1', // RoyalBlue - Classic rich blue
-      '#DAA520', // Goldenrod - Warm, antique gold
-      '#8A2BE2', // BlueViolet - Rich violet purple
-      '#2E8B57', // SeaGreen - Deep forest green
-      '#FF8C00', // DarkOrange - Rich sunset orange
-      '#BA55D3', // MediumOrchid - Bright lavender
-      '#CD853F', // Peru - Warm terracotta
-      '#00FA9A', // MediumSpringGreen - Bright mint
-      '#C71585'  // MediumVioletRed - Deep magenta
-    ];
+  getColorBase() {
 
     if (this.id < 0) {
-      this.color = Math.floor(Math.random() * colors.length);
+      this.color = Math.floor(Math.random() * this.colors.length);
       return;
     }
-    this.color = colors[this.id % colors.length];
+    this.color = this.colors[this.id % this.colors.length];
     this.originalColor = this.color;
   }
   

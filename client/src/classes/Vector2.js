@@ -17,7 +17,7 @@ export default class Vector2 {
   }
 
   divide(scalar) {
-    return new Vector2(this.x / scalar, this.y * scalar);
+    return new Vector2(this.x / scalar, this.y / scalar);
   }
 
   magnitude() {
@@ -30,15 +30,26 @@ export default class Vector2 {
     return new Vector2(this.x / magnitude, this.y / magnitude);
   }
 
-  distance(vector) {
-    const dx = this.x - vector.x;
-    const dy = this.y - vector.y;
+  distance(vector, gridSize = 0) {
+    const dx = Math.min(
+      (this.x - vector.x + gridSize) % gridSize,
+      (vector.x - this.x + gridSize) % gridSize
+    );
+    const dy = Math.min(
+      (this.y - vector.y + gridSize) % gridSize,
+      (vector.y - this.y + gridSize) % gridSize
+    );
     return Math.sqrt(dx * dx + dy * dy);
   }
   
-  limit(max) {
+  limit(max, logIt = false, descr = "") {
     const magnitude = this.magnitude();
+    // console.log("magnitude: ", magnitude);
     if (magnitude > max) {
+      const norm = this.normalize();
+      const mult = norm.multiply(max);
+      // console.log("scaled norm:", mult);
+      //  if (logIt) console.log("Description: ", descr, "normalized vector: ", norm, " | normalized vector length: ", norm.magnitude());
       return this.normalize().multiply(max);
     } else {
       return this;

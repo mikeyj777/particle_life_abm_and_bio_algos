@@ -12,7 +12,8 @@ export default class FlockingAgent extends Agent {
     brownian = false, 
     mobile = false, 
     velocity = null, 
-    maxVelocity = 5, 
+    maxVelocity = 5,
+    agentTypes = 5
     ) {
     super(gridSize, id, color, x, y, radius, brownian, mobile, velocity, maxVelocity);
 
@@ -23,15 +24,31 @@ export default class FlockingAgent extends Agent {
     this.perceptionRadius = 50;
     this.desiredSeparation = 25;
     this.turnFactor = 0.3;
-    this.minSpeed = 2.0;
+    this.minSpeed = 0;
     this.edgeMargin = 50;
     this.position = new Vector2(this.x, this.y);
+    this.lowXvelocityInARow = 0;
+    this.stepCounter = 0;
+    this.maxLowXvelocityInARow = 0;
+    this.agentTypes = agentTypes;
+    this.agentType = this.id % this.agentTypes;
+    this.getColor();
+  }
+
+  getColor() {
+    this.color = this.colors[this.agentType % this.colors.length];
   }
 
   setVelocity() {
-    this.velocity = new Vector2(0, 0);
-    this.velocity.x = Math.floor(Math.random() * this.maxVelocity);
-    this.velocity.y = Math.floor(Math.random() * this.maxVelocity);
+    // Create a random angle in radians
+    const angle = Math.random() * Math.PI * 2;
+
+    // Use trigonometry to get a random direction with consistent speed
+    const speed = this.minSpeed + (Math.random() * (this.maxVelocity - this.minSpeed));
+    this.velocity = new Vector2(
+      Math.cos(angle) * speed,
+      Math.sin(angle) * speed
+    );
   }
 
   setFlockingParams(flockingParams) {
@@ -57,12 +74,24 @@ export default class FlockingAgent extends Agent {
     // self.min_speed = 2.0         # Minimum speed to maintain
     // self.edge_margin = 50        # Margin to avoid edges
 
+    // const BASE_BOIDS_PARAMS = {
+    //   maxForce: 0.1,
+    //   separation: [0.25, 0.5, 1.0, 2.0, 3.0],
+    //   alignment: [3.0, 2.0, 1.0, 0.5, 0.25],
+    //   cohesion: [1.0, 2.0, 3.0, 0.5, 0.25],
+    //   perceptionRadius: 50,
+    //   desiredSeparation: [10, 20, 30, 40, 50],
+    //   turnFactor: 0.1,
+    //   minSpeed: 0.5,
+    //   edgeMargin: 30
+    // }
+
     if (flockingParams.maxForce) this.maxForce = parseFloat(flockingParams.maxForce);
-    if (flockingParams.separation) this.separationWeight = parseFloat(flockingParams.separation);
-    if (flockingParams.alignment) this.alignmentWeight = parseFloat(flockingParams.alignment);
-    if (flockingParams.cohesion) this.cohesionWeight = parseFloat(flockingParams.cohesion);
+    if (flockingParams.separation) this.separationWeight = parseFloat(flockingParams.separation[this.agentType % flockingParams.separation.length]);
+    if (flockingParams.alignment) this.alignmentWeight = parseFloat(flockingParams.alignment[this.agentType % flockingParams.alignment.length]);
+    if (flockingParams.cohesion) this.cohesionWeight = parseFloat(flockingParams.cohesion[this.agentType % flockingParams.cohesion.length]);
     if (flockingParams.perceptionRadius) this.perceptionRadius = parseFloat(flockingParams.perceptionRadius);
-    if (flockingParams.desiredSeparation) this.desiredSeparation = parseFloat(flockingParams.desiredSeparation);
+    if (flockingParams.desiredSeparation) this.desiredSeparation = parseFloat(flockingParams.desiredSeparation[this.agentType % flockingParams.desiredSeparation.length]);
     if (flockingParams.turnFactor) this.turnFactor = parseFloat(flockingParams.turnFactor);
     if (flockingParams.minSpeed) this.minSpeed = parseFloat(flockingParams.minSpeed);
     if (flockingParams.edgeMargin) this.edgeMargin = parseFloat(flockingParams.edgeMargin);
@@ -79,7 +108,24 @@ export default class FlockingAgent extends Agent {
     this.acceleration = this.acceleration.add(alignmentForce);
     this.acceleration = this.acceleration.add(cohesionForce);
     this.velocity = this.velocity.add(this.acceleration);
-    this.velocity.limit(this.maxVelocity);
+    // if (this.id === 0) {
+    //   console.log("agent id: ", this.id, " | acceleration normal: ", this.acceleration.normalize(), " | velocity normal: ", this.velocity.normalize());
+    // }
+    this.velocity = this.velocity.limit(this.maxVelocity, false);
+    // console.log("agent id: ", this.id, " | velocity: ", this.velocity);
+    this.stepCounter++;
+
+    if (Math.abs(this.velocity.x) < 0.1) {
+      this.lowXvelocityInARow++;
+    } else {
+      this.lowXvelocityInARow = 0;
+    }
+
+    if (this.lowXvelocityInARow > this.maxLowXvelocityInARow) {
+      this.maxLowXvelocityInARow = this.lowXvelocityInARow;
+      // console.log("agent id: ", this.id, " | step: ", this.stepCounter, " | maxLowXvelocityInARow: ", this.maxLowXvelocityInARow);
+    }
+
     this.position = this.position.add(this.velocity);
     this.position.x = (this.position.x + this.gridSize) % this.gridSize;
     this.position.y = (this.position.y + this.gridSize) % this.gridSize;
@@ -99,10 +145,10 @@ export default class FlockingAgent extends Agent {
       if (agent.id === this.id) {
         continue;
       }
-      let distance = this.position.distance(agent.position);
+      let distance = this.position.distance(agent.position, this.gridSize);
       if (distance > 0 && distance < this.desiredSeparation) {
         let diff = this.position.subtract(agent.position);
-        diff = diff.normalize();
+        // diff = diff.normalize();
         steering = steering.add(diff);
         count++;
       }
@@ -115,7 +161,8 @@ export default class FlockingAgent extends Agent {
         steering = steering.normalize();
         steering = steering.multiply(this.maxVelocity);
         steering = steering.subtract(this.velocity);
-        steering = steering.limit(this.maxForce);
+        steering = steering.limit(this.maxForce, true, "separate");
+      //   // console.log("agent id: ", this.id, " | normalized separation steering: ", steering.normalize());
       }
     }
     return steering;
@@ -129,24 +176,31 @@ export default class FlockingAgent extends Agent {
       if (agent.id === this.id) {
         continue;
       }
-      let distance = this.position.distance(agent.position);
+      let distance = this.position.distance(agent.position, this.gridSize);
       if (distance > 0 && distance < this.perceptionRadius) {
-        steering = steering.add(agent.velocity);
+        // Add slight random variation to alignment
+        let neighborVelocity = agent.velocity;
+        // let jitter = new Vector2(
+        //   (Math.random() - 0.5) * 0.1 * this.maxForce,
+        //   (Math.random() - 0.5) * 0.1 * this.maxForce
+        // );
+        // neighborVelocity = neighborVelocity.add(jitter);
+        steering = steering.add(neighborVelocity);
         count++;
       }
     }
     if (count > 0) {
-      steering = steering.divide(count);
+      steering = steering.multiply(1 / count);
       if (steering.magnitude() > 0) {
         steering = steering.normalize();
         steering = steering.multiply(this.maxVelocity);
         steering = steering.subtract(this.velocity);
-        steering = steering.limit(this.maxForce);
+        steering = steering.limit(this.maxForce, true, "align");
+      //   // console.log("agent id: ", this.id, " | normalized alignment steering: ", steering.normalize());
       }
     }
     return steering;
   }
-  
 
   cohere(agents) {
     let steering = new Vector2(0, 0);
@@ -157,24 +211,36 @@ export default class FlockingAgent extends Agent {
       if (agent.id === this.id) {
         continue;
       }
-      let distance = this.position.distance(agent.position);
+      let distance = this.position.distance(agent.position, this.gridSize);
       if (distance > 0 && distance < this.perceptionRadius) {
+        // Add slight offset to perceived positions
+        let perceivedPos = new Vector2(
+          agent.position.x + (Math.random() - 0.5) * this.desiredSeparation * 0.1,
+          agent.position.y + (Math.random() - 0.5) * this.desiredSeparation * 0.1
+        );
         centerOfMass = centerOfMass.add(agent.position);
         count++;
       }
     }
     if (count > 0) {
       centerOfMass = centerOfMass.divide(count);
-      let desired = centerOfMass.subtract(this.position); 
+      let desired = centerOfMass.subtract(this.position);
+      
+      // Add variability to desired velocity
+      // let variation = new Vector2(
+      //   (Math.random() - 0.5) * this.maxForce,
+      //   (Math.random() - 0.5) * this.maxForce
+      // );
+      // desired = desired.add(variation);
+      
       if (desired.magnitude() > 0) {
         desired = desired.normalize();
         desired = desired.multiply(this.maxVelocity);
         steering = desired.subtract(this.velocity);
-        steering = steering.limit(this.maxForce);
+        steering = steering.limit(this.maxForce, true, "cohesion");
+        // console.log("agent id: ", this.id, " | normalized cohesion steering: ", steering.normalize());
       }
     }
     return steering;
   }
-
-
 }
