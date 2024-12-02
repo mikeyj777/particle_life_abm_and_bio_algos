@@ -39,6 +39,7 @@ const ParticleSwarm = () => {
   const [numParticles, setNumParticles] = useState(100);
   const [particles, setParticles] = useState([]);
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+  const [mousePresent, setMousePresent] = useState(false);
 
   useEffect(() => {
     setParticles(createInitialParticles(numParticles));
@@ -48,7 +49,7 @@ const ParticleSwarm = () => {
     const svgRect = event.currentTarget.getBoundingClientRect();
     const mouseX = event.clientX - svgRect.left;
     const mouseY = event.clientY - svgRect.top;
-
+    console.log("svgRect: ", svgRect, " | mouseX: ", mouseX, " | mouseY: ", mouseY);
     setMouseCoords({ x: mouseX, y: mouseY });
   }
 
@@ -87,7 +88,7 @@ const ParticleSwarm = () => {
 
     frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
-  }, []);
+  }, [mouseCoords, numParticles]);
 
   return (
     <div className="particle-system-container">
@@ -95,10 +96,10 @@ const ParticleSwarm = () => {
         width={GRID_SIZE} 
         height={GRID_SIZE}
         className="particle-system"
-      >
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setMousePresent(true)}
         onMouseLeave={() => setMousePresent(false)}
+      >
         {particles.map((particle) => (
           <ParticleView 
             key={particle.id} 
