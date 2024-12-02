@@ -38,19 +38,24 @@ const createInitialParticles = (numParticles) => {
 const ParticleSwarm = () => {
   const [numParticles, setNumParticles] = useState(100);
   const [particles, setParticles] = useState([]);
+  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setParticles(createInitialParticles(numParticles));
   }, [numParticles]);
 
+  const handleMouseMove = (event) => {
+    const svgRect = event.currentTarget.getBoundingClientRect();
+    const mouseX = event.clientX - svgRect.left;
+    const mouseY = event.clientY - svgRect.top;
+
+    setMouseCoords({ x: mouseX, y: mouseY });
+  }
+
   useEffect(() => {
     let frameId;
-    let lastTime = performance.now();
 
-    const animate = (currentTime) => {
-      const deltaTime = (currentTime - lastTime) / 1000;
-      lastTime = currentTime;
-
+    const animate = () => {
       setParticles(currentParticles => 
         currentParticles.map(particle => {
           const updatedParticle = new Particle(
@@ -67,20 +72,11 @@ const ParticleSwarm = () => {
             particle.mass
           );
 
-          updatedParticle.position = updatedParticle.position.add(
-            updatedParticle.velocity.multiply(deltaTime)
-          );
+          updatedParticle.applyForce(mouseCoords);
 
           updatedParticle.position.x = (updatedParticle.position.x + GRID_SIZE) % GRID_SIZE;
           updatedParticle.position.y = (updatedParticle.position.y + GRID_SIZE) % GRID_SIZE;
 
-          const randomForce = new Vector2(
-            (Math.random() * 2 - 1) * 0.5,
-            (Math.random() * 2 - 1) * 0.5
-          );
-          updatedParticle.velocity = updatedParticle.velocity
-            .add(randomForce)
-            .limit(updatedParticle.maxVelocity);
 
           return updatedParticle;
         })
@@ -100,6 +96,9 @@ const ParticleSwarm = () => {
         height={GRID_SIZE}
         className="particle-system"
       >
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setMousePresent(true)}
+        onMouseLeave={() => setMousePresent(false)}
         {particles.map((particle) => (
           <ParticleView 
             key={particle.id} 
