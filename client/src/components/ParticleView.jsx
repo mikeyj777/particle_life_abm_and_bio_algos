@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-const ParticleView = ({ particle }) => {
+const ParticleView = ({ particle, tailLength }) => {
   const angle = Math.atan2(particle.velocity.y, particle.velocity.x);
-  const length = particle.velocity.magnitude() * 8;
+  const length = particle.velocity.magnitude() * tailLength;
   
   return (
     <g 

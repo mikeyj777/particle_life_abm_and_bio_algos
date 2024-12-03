@@ -1,26 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import Particle from '../classes/Particle';
 import Vector2 from '../classes/Vector2';
-import ParticleView from './ParticleView';  
+import ParticleView from './ParticleView';
+import { generateColors } from '../utils/helpers';
 
 const GRID_SIZE = 800;
 
+
+
 const createInitialParticles = (numParticles) => {
+  const maxVelocity = 5;
+  const colors = generateColors(numParticles);
   const particles = [];
   for (let i = 0; i < numParticles; i++) {
-    const x = Math.random() * GRID_SIZE;
-    const y = Math.random() * GRID_SIZE;
+    const x = 0.5 * GRID_SIZE;
+    const y = 0.5 * GRID_SIZE;
     
     const velocity = new Vector2(
-      (Math.random() * 2 - 1) * 3,
-      (Math.random() * 2 - 1) * 3
+      maxVelocity * Math.cos(i / numParticles * 2 * Math.PI),
+      maxVelocity * Math.sin(i / numParticles * 2 * Math.PI)
     );
-    
+    // constructor(gridSize, id = 0, color = -1, x = -1, y = -1, radius = -1, brownian = false, mobile = false, velocity = null, maxVelocity = 5, mass = -1, maxMass = 360)
     particles.push(
       new Particle(
         GRID_SIZE,
         i,
-        i * 30,
+        colors[i],
         x,
         y,
         5,

@@ -15,12 +15,17 @@ export default class Particle extends Agent {
   }
 
   applyForce(mouseCoords) {
+    const mouseVect = new Vector2(mouseCoords.x, mouseCoords.y);
     let force = new Vector2(mouseCoords.x,mouseCoords.y);
     force = force.subtract(this.position);
     force = force.normalize();
     force = force.multiply(this.mass * this.mass * K);
+    if (this.position.distance(mouseVect) < 50 + this.mass) {
+      force = force.multiply(-1);
+    }
     this.acceleration = force.divide(this.mass);
     this.velocity = this.velocity.add(this.acceleration);
+    this.velocity = this.velocity.multiply(0.99);
     this.position = this.position.add(this.velocity);
   }
 
