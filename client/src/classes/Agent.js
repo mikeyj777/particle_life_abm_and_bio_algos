@@ -103,30 +103,46 @@ export default class Agent {
     };
   }
 
-  move() {
+  move(gravity = 0, wrap = false, bounce = false) {
     // Calculate new position
+    this.velocity.y += gravity;
+    
+    if (this.position) {
+      this.x = this.position.x;
+      this.y = this.position.y;
+    }
+    
     let newX = this.x + this.velocity.x;
     let newY = this.y + this.velocity.y;
     
-    // Handle bounds collision
-    if (newX < 0) {
+    if (bounce) {
+      if (newX < 0) {
         newX = 0;
         this.velocity.x *= -1;
-    } else if (newX >= this.gridSize) {
+      } else if (newX >= this.gridSize) {
         newX = this.gridSize - 1;
         this.velocity.x *= -1;
+      }
+      if (newY < 0) {
+          newY = 0;
+          this.velocity.y *= -1;
+      } else if (newY >= this.gridSize) {
+          newY = this.gridSize - 1;
+          this.velocity.y *= -1;
+      }
     }
     
-    if (newY < 0) {
-        newY = 0;
-        this.velocity.y *= -1;
-    } else if (newY >= this.gridSize) {
-        newY = this.gridSize - 1;
-        this.velocity.y *= -1;
+    if (wrap) {
+      newX = (newX + this.gridSize) % this.gridSize;
+      newY = (newY + this.gridSize) % this.gridSize;
     }
-    
+
     // Update position
     this.x = newX;
     this.y = newY;
+    if (this.position) {
+      this.position.x = this.x;
+      this.position.y = this.y;
+    }
   }
 }

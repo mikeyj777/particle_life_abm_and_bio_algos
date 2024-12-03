@@ -1,6 +1,6 @@
 .agent-grid-canvas {
   border: 1px solid #ccc;
-  background-color: #ffffff;
+  background-color: black;
   display: block;
   /* ensures the canvas doesn't get stretched or distorted */
   image-rendering: pixelated;
