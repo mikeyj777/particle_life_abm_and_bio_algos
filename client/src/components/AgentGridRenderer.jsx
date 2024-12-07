@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const AgentGridRenderer = ({ agents , GRID_SIZE}) => {
+const AgentGridRenderer = ({ agents , GRID_SIDE_x, GRID_SIDE_y = -1}) => {
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
   const [frameCount, setFrameCount] = useState(0);
+
+  if (GRID_SIDE_y === -1) {
+    GRID_SIDE_y = GRID_SIDE_x;
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -16,7 +20,7 @@ const AgentGridRenderer = ({ agents , GRID_SIZE}) => {
       });
 
       // Clear the canvas
-      ctx.clearRect(0, 0, GRID_SIZE, GRID_SIZE);
+      ctx.clearRect(0, 0, GRID_SIDE_x, GRID_SIDE_y);
 
       // Draw each agent
       agents.forEach(agent => {
