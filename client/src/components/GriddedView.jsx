@@ -35,8 +35,12 @@ const GriddedView = ({
   children 
 }) => {
   const canvasRef = useRef(null);
-
+  console.log("grid view!")
+  if (cells.length > 0) {
+    console.log("modelName: ", modelName, " | GRID_SIZE: ", GRID_SIZE, " | cells: ", cells.length * cells[0].length, " | isRunning: ", isRunning, " | setIsRunning: ", setIsRunning, " | handleReset: ", handleReset, " | children: ", children);
+  }
   useEffect(() => {
+    console.log("grid view effect!");
     const canvas = canvasRef.current;
     if (!canvas || !cells || cells.length === 0) return;
 
@@ -58,15 +62,19 @@ const GriddedView = ({
       });
     });
 
+    console.log("minPressure: ", minPressure, " | maxPressure: ", maxPressure); 
+
     // Draw cells
     cells.forEach(row => {
       row.forEach(cell => {
         if (cell.color === -1) {
           // Use pressure-based coloring
           ctx.fillStyle = getPressureColor(cell.pressPsia, minPressure, maxPressure);
+          console.log("x: ", cell.x, " | y: ", cell.y, " | pressure: ", cell.pressPsia, " | color: ", ctx.fillStyle);
         } else {
           // Use existing color if specified
           ctx.fillStyle = `#${cell.color.toString(16).padStart(6, '0')}`;
+
         }
         
         ctx.fillRect(

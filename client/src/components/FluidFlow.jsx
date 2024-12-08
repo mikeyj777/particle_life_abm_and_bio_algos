@@ -11,7 +11,7 @@ const dt_sec = 0.1;
 const FluidFlow = () => {
   const [fluidCells, setFluidCells] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
-  const [highPressureCellCount, setHighPressureCellCount] = useState(0);
+  const [highPressureCellCount, setHighPressureCellCount] = useState(300);
   const [temperatureDegF, setTemperatureDegF] = useState(300);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -24,7 +24,7 @@ const FluidFlow = () => {
 
   // populate grid with fluidCells, all at 0 pressure
   useEffect(() => {
-    
+      console.log("base grid initialized");
       setFluidCells(() => {
         const newFluidCells = [];
         for (let i = 0; i < GRID_SIZE; i++) {
@@ -81,7 +81,7 @@ const FluidFlow = () => {
   // initialize random cells to have high pressure. 
   useEffect(() => {
     if (!isInitialized && fluidCells.length > 0) {
-
+      console.log("high pressure cells initialized");
       setFluidCells(currentCells => {
         const totalCells = GRID_SIZE * GRID_SIZE;
         const newCells = [...currentCells];  // Create new array for immutability
@@ -122,6 +122,7 @@ const FluidFlow = () => {
 
     const animate = () => {
       setFluidCells(currentCells => {
+        console.log("animate.  frameId: ", animationFrameId);
         return getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells(currentCells, dt_sec)
       });
     }
