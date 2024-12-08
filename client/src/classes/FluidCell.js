@@ -8,12 +8,50 @@ export default class FluidCell extends Agent {
     this.pressPsia = pressPsig + 14.959;
     this.temperatureDegR = this.temperatureDegF + 459.67;
     this.mw = mw;
-    this.mass = this.pressure * V_ft3 * this.mw / R_psia_ft3_lb_mol_deg_R / this.temperatureDegR;
-    this.densityLb_ft3 = this.mass / V_ft3;
+    this.massLb = this.pressure * V_ft3 * this.mw / R_psia_ft3_lb_mol_deg_R / this.temperatureDegR;
+    this.densityLb_ft3 = this.massLb / V_ft3;
+    this.flowPatterns = [];
+    this.baseMassLb = 14.959 * V_ft3 * this.mw / R_psia_ft3_lb_mol_deg_R / this.temperatureDegR;
   }
 
-  getVelocity(area = 1) {
-    return linearVelocity_ft_sec(this.pressPsia, this.densityLb_ft3) * area;
+  getVolRateFt3Sec(deltaP = 0, area=1) {
+    return linearVelocity_ft_sec(deltaP, this.densityLb_ft3) * area;
+  }
+
+  setHighPressure() {
+    this.pressPsia = this.pressPsig + 14.959;
+    this.massLb = this.pressPsia * V_ft3 * this.mw / R_psia_ft3_lb_mol_deg_R / this.temperatureDegR;
+    this.densityLb_ft3 = this.massLb / V_ft3;
+  }
+  
+  updatePropertiesForFlow() {
+    const lbMoles = this.massLb / this.mw;
+    this.pressPsia = (lbMoles * R_psia_ft3_lb_mol_deg_R * this.temperatureDegR) / (V_ft3);
+    this.pressPsig = this.pressPsia - 14.959;
+    this.densityLb_ft3 = this.massLb / V_ft3;
+  }
+
+  getFlowPatternAndReturnTotalMassRateOut(validNeighbors, currentAgents) {
+    // iterate across the adjacent cells.  for any that have a positive pressure difference, calculate the flow pattern
+    // the flow pattern is the volumetric rate in ft^3/sec leaving the cell
+    const flowPatterns = [];
+    let totalMassRate = 0;
+    const x = this.x;
+    const y = this.y;
+    for (const xOffset of validNeighbors.x) {
+      for (const yOffset of validNeighbors.y) {
+        if (xOffset === 0 && yOffset === 0) continue;
+        const otherAgent = currentAgents[x+xOffset][y+yOffset];
+        const deltaP = this.pressPsia - otherAgent.pressPsia;
+        if (deltaP < 0) continue;
+        const volRateFt3Sec = this.getVolRateFt3Sec(deltaP);
+        const massRateLbSec = volRateFt3Sec * this.densityLb_ft3;
+        totalMassRate += massRateLbSec;
+        flowPatterns.push({ xOffset, yOffset, massRateLbSec });
+      }
+    }
+    this.flowPatterns = flowPatterns;
+    return totalMassRate;
   }
 
 } 

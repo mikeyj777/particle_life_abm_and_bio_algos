@@ -5,6 +5,7 @@ import GriddedView from "./GriddedView";
 const GRID_SIZE = 800;
 const pressure_psig = 300;
 const mw = 30;
+const dt_sec = 0.1; 
 
 const FluidFlow = () => {
   const [fluidCells, setFluidCells] = useState([]);
@@ -20,11 +21,9 @@ const FluidFlow = () => {
     setIsInitialized(false);
   };
 
+  // populate grid with fluidCells, all at 0 pressure
   useEffect(() => {
-    if (!isRunning) return;
-
-    if (!isInitialized) {
-
+    
       setFluidCells(() => {
         const newFluidCells = [];
         for (let i = 0; i < GRID_SIZE; i++) {
@@ -36,10 +35,27 @@ const FluidFlow = () => {
         }
         return newFluidCells;
       });
+  }, []);
+
+
+  // initialize random cells to have high pressure. 
+  useEffect(() => {
+    if (!isInitialized) {
+
+      setFluidCells(currentAgents => {
+        const newAgents = [];
+        for (const agent of currentAgents) {
+          if (Math.random() > highPressureCellCount / fluidCells.length) return;
+          agent.pressPsig = pressure_psig;
+          agent.setHighPressure();
+          newAgents.push(agent);
+        }
+        return newAgents;
+      });
 
       setIsInitialized(true);
     }
-  }, []);
+  }, [isInitialized]);
 
   useEffect(() => {
     
@@ -48,10 +64,51 @@ const FluidFlow = () => {
     const animate = () => {
       setFluidCells(currentAgents => {
         const newAgents = [];
-        for (const agent of currentAgents) {
-          if (Math.random() > highPressureCellCount / fluidCells.length) return;
-          agent.pressure = pressure_psig;
-          newAgents.push(agent);
+        for (let i = 0; i < currentAgents.length; i++) {
+          for (let j = 0; j < currentAgents[0].length; j++) {
+            const agent = currentAgents[i][j];
+            let numSides = 2;
+            const validNeighbors = {
+              x: [0],
+              y: [0],
+            };
+            if (agent.x > 0) {
+              validNeighbors.x.push(-1);
+              numSides += 1;
+            }
+            if (agent.x < GRID_SIZE-1) 
+              {
+                validNeighbors.x.push(1);
+                numSides += 1;
+              }
+            if (agent.y > 0) {
+              validNeighbors.y.push(-1);
+              numSides += 1;
+            }
+            if (agent.y < GRID_SIZE-1) {
+              validNeighbors.y.push(1);
+              numSides += 1;
+            }
+            const totalMassRateOutLbSec = agent.getFlowPatternAndReturnTotalMassRateOut(validNeighbors, currentAgents);
+            const massAvailableLb = agent.massLb - agent.baseMassLb;
+            let totMassOut = 0
+            for (const flowPattern of agent.flowPatterns) {
+              const massRateLbSec = flowPattern.massRateLbSec;
+              const massOutLb = massRateLbSec * dt_sec;
+              totMassOut += massOutLb;
+            }
+            let scalingFactor = 1;
+            if (totMassOut > massAvailableLb) scalingFactor = massAvailableLb / totMassOut;
+            for (const flowPattern of agent.flowPatterns) {
+              if (flowPattern.xOffset === 0 && flowPattern.yOffset === 0) continue;
+              const otherAgent = currentAgents[agent.x + flowPattern.xOffset][agent.y + flowPattern.yOffset];
+              const massRateLbSec = flowPattern.massRateLbSec;
+              const massOutLb = massRateLbSec * dt_sec * scalingFactor;
+              agent.mass -= massOutLb;
+              agent.updatePropertiesForFlow();
+              otherAgent.mass += massOutLb;
+            }
+          }
         }
         return newAgents;
       });
