@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
+import '../styles/GriddedView.css';
 
 const GriddedView = ({ 
   modelName, 
@@ -9,14 +10,15 @@ const GriddedView = ({
   handleReset, 
   children 
 }) => {
-  const canvasRef = React.useRef(null);
+  const canvasRef = useRef(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    const cellSize = Math.floor(600 / GRID_SIZE);
+    const canvasSize = Math.min(canvas.width, canvas.height);
+    const cellSize = canvasSize / GRID_SIZE;
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -36,33 +38,35 @@ const GriddedView = ({
   }, [cells, GRID_SIZE]);
 
   return (
-    <div className="gridded-view-container">
-      <div className="gridded-view-header">
-        <h2 className="gridded-view-title">{modelName}</h2>
-        <div className="gridded-view-controls">
+    <div className="gridded-view">
+      <div className="gridded-view__visualization">
+        <h2 className="gridded-view__title">{modelName}</h2>
+        <div className="gridded-view__canvas-container">
+          <canvas
+            ref={canvasRef}
+            width={600}
+            height={600}
+            className="gridded-view__canvas"
+          />
+        </div>
+      </div>
+      
+      <div className="gridded-view__parameters">
+        <div className="gridded-view__controls">
           <button 
-            className="gridded-view-button"
+            className="gridded-view__button"
             onClick={() => setIsRunning(!isRunning)}
           >
             {isRunning ? 'Stop' : 'Start'}
           </button>
           <button 
-            className="gridded-view-button"
+            className="gridded-view__button"
             onClick={handleReset}
           >
             Reset
           </button>
         </div>
-      </div>
-      
-      <div className="gridded-view-content">
-        <canvas
-          ref={canvasRef}
-          width={600}
-          height={600}
-          className="gridded-view-canvas"
-        />
-        <div className="gridded-view-controls-container">
+        <div className="gridded-view__parameters-content">
           {children}
         </div>
       </div>

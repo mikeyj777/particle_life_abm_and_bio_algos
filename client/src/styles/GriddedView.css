@@ -1,63 +1,75 @@
-.gridded-view-container {
-  padding: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #fff;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.gridded-view-header {
+.gridded-view {
   display: flex;
-  justify-content: space-between;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.gridded-view__visualization {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+}
+
+.gridded-view__title {
+  font-size: 24px;
   margin-bottom: 20px;
-  padding: 10px 0;
-  border-bottom: 1px solid #e0e0e0;
+  color: #333;
 }
 
-.gridded-view-title {
-  margin: 0;
-  font-size: 20px;
+.gridded-view__canvas-container {
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: calc(100vh - 100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.gridded-view-controls {
+.gridded-view__canvas {
+  border: 1px solid #e0e0e0;
+  background-color: #f8f8f8;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.gridded-view__parameters {
+  width: 300px;
+  height: 100vh;
+  border-left: 1px solid #e0e0e0;
+  padding: 20px;
+  background-color: #f9f9f9;
+  overflow-y: auto;
+}
+
+.gridded-view__controls {
   display: flex;
   gap: 10px;
+  margin-bottom: 20px;
 }
 
-.gridded-view-button {
+.gridded-view__button {
   padding: 8px 16px;
-  margin: 0 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
-.gridded-view-button:hover {
+.gridded-view__button:hover {
   background-color: #f0f0f0;
 }
 
-.gridded-view-button:active {
+.gridded-view__button:active {
   background-color: #e0e0e0;
 }
 
-.gridded-view-content {
+.gridded-view__parameters-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 20px;
-}
-
-.gridded-view-canvas {
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-}
-
-.gridded-view-controls-container {
-  width: 100%;
 }

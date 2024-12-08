@@ -77,7 +77,7 @@ const TemplateGridAndControls = ({
           </div>
         </div>
 
-        {/* Particle Size Control */}
+        {/* Particle Size Control
         <div className="control-section">
           <label>Particle radius:</label>
           <input
@@ -95,7 +95,7 @@ const TemplateGridAndControls = ({
           <div className="stat-item">
             Size: {particleRadius}
           </div>
-        </div>
+        </div> */}
 
         {/* Render any model-specific controls passed as children */}
         {children}
