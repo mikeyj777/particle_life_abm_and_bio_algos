@@ -1,28 +1,48 @@
 import React, { useRef, useEffect } from 'react';
-import '../styles/GriddedView.css';
+
+let displayedValue = false;
+let displayedValueCount = 0;
 
 const getPressureColor = (pressure, minPressure, maxPressure) => {
-  // Normalize pressure to 0-1 range
-  const normalized = (pressure - minPressure) / (maxPressure - minPressure);
+  // Add a small epsilon to prevent division by zero
+  const epsilon = 0.0001;
   
-  // Calculate RGB values:
-  // First half: red → green (1,0,0) → (0,1,0)
-  // Second half: green → blue (0,1,0) → (0,0,1)
-  let r = 0, g = 0, b = 0;
-  
-  if (normalized <= 0.5) {
-    // Red to Green (first half)
-    const t = normalized * 2;
-    r = 255 * (1 - t);
-    g = 255 * t;
-  } else {
-    // Green to Blue (second half)
-    const t = (normalized - 0.5) * 2;
-    g = 255 * (1 - t);
-    b = 255 * t;
+  // Ensure we have a valid range
+  if (Math.abs(maxPressure - minPressure) < epsilon) {
+    return 'rgb(135, 206, 235)'; // Sky blue for zero/equal pressure
   }
   
-  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+  // Normalize pressure to 0-1 range
+  const normalized = Math.max(0, Math.min(1, (pressure - minPressure) / (maxPressure - minPressure)));
+  
+  // Use a modified color scheme that ensures visible colors
+  // Low pressure: sky blue (135, 206, 235)
+  // Medium pressure: light green (144, 238, 144)
+  // High pressure: red (255, 99, 71)
+  
+  let r, g, b;
+  
+  if (normalized <= 0.5) {
+    // Sky blue to light green
+    const t = normalized * 2;
+    r = Math.round(135 + (144 - 135) * t);
+    g = Math.round(206 + (238 - 206) * t);
+    b = Math.round(235 + (144 - 235) * t);
+  } else {
+    // Light green to red
+    const t = (normalized - 0.5) * 2;
+    r = Math.round(144 + (255 - 144) * t);
+    g = Math.round(238 + (99 - 238) * t);
+    b = Math.round(144 + (71 - 144) * t);
+  }
+
+  const col = `rgb(${r}, ${g}, ${b})`;
+
+  // if (!displayedValue) {
+  //   console.log("col: ", col);
+  // }
+  
+  return `rgb(${r}, ${g}, ${b})`;
 };
 
 const GriddedView = ({ 
@@ -35,12 +55,8 @@ const GriddedView = ({
   children 
 }) => {
   const canvasRef = useRef(null);
-  console.log("grid view!")
-  if (cells.length > 0) {
-    console.log("modelName: ", modelName, " | GRID_SIZE: ", GRID_SIZE, " | cells: ", cells.length * cells[0].length, " | isRunning: ", isRunning, " | setIsRunning: ", setIsRunning, " | handleReset: ", handleReset, " | children: ", children);
-  }
+
   useEffect(() => {
-    console.log("grid view effect!");
     const canvas = canvasRef.current;
     if (!canvas || !cells || cells.length === 0) return;
 
@@ -48,8 +64,9 @@ const GriddedView = ({
     const canvasSize = Math.min(canvas.width, canvas.height);
     const cellSize = canvasSize / GRID_SIZE;
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Clear canvas with a light background
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Find pressure range
     let minPressure = Infinity;
@@ -62,29 +79,40 @@ const GriddedView = ({
       });
     });
 
-    console.log("minPressure: ", minPressure, " | maxPressure: ", maxPressure); 
-
-    // Draw cells
+    console.log("min pressure: ", minPressure, " | max pressure: ", maxPressure);
+    // Draw cells with a small gap between them for better visibility
+    const gap = 0.5;
     cells.forEach(row => {
       row.forEach(cell => {
-        if (cell.color === -1) {
-          // Use pressure-based coloring
-          ctx.fillStyle = getPressureColor(cell.pressPsia, minPressure, maxPressure);
-          console.log("x: ", cell.x, " | y: ", cell.y, " | pressure: ", cell.pressPsia, " | color: ", ctx.fillStyle);
-        } else {
-          // Use existing color if specified
-          ctx.fillStyle = `#${cell.color.toString(16).padStart(6, '0')}`;
-
-        }
+        
+        const pressureColor = getPressureColor(cell.pressPsia, minPressure, maxPressure);
+        
+        ctx.fillStyle = pressureColor;
         
         ctx.fillRect(
-          cell.x * cellSize,
-          cell.y * cellSize,
-          cellSize,
-          cellSize
+          cell.x * cellSize + gap,
+          cell.y * cellSize + gap,
+          cellSize - gap * 2,
+          cellSize - gap * 2
         );
       });
     });
+
+    // Draw grid lines for better visibility
+    ctx.strokeStyle = '#e9ecef';
+    ctx.lineWidth = 0.5;
+    
+    for (let i = 0; i <= GRID_SIZE; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * cellSize, 0);
+      ctx.lineTo(i * cellSize, canvasSize);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(0, i * cellSize);
+      ctx.lineTo(canvasSize, i * cellSize);
+      ctx.stroke();
+    }
   }, [cells, GRID_SIZE]);
 
   return (
@@ -94,8 +122,8 @@ const GriddedView = ({
         <div className="gridded-view__canvas-container">
           <canvas
             ref={canvasRef}
-            width={600}
-            height={600}
+            width={GRID_SIZE}
+            height={GRID_SIZE}
             className="gridded-view__canvas"
           />
         </div>
