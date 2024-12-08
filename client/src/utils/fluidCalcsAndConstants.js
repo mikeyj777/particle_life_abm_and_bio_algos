@@ -50,9 +50,9 @@ export const getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells = (fluidCel
         const otherCell = fluidCells[cell.x + flowPattern.xOffset][cell.y + flowPattern.yOffset];
         const massRateLbSec = flowPattern.massRateLbSec;
         const massOutLb = massRateLbSec * dt_sec * scalingFactor;
-        cell.mass -= massOutLb;
+        cell.massLb -= massOutLb;
         cell.updatePropertiesForFlow();
-        otherCell.mass += massOutLb;
+        otherCell.massLb += massOutLb;
         otherCell.updatePropertiesForFlow();
       }
     }

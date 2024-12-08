@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import FluidCell from "../classes/FluidCell";
 import GriddedView from "./GriddedView";
 import { getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells } from "../utils/fluidCalcsAndConstants";
@@ -28,42 +28,102 @@ const FluidFlow = () => {
       setFluidCells(() => {
         const newFluidCells = [];
         for (let i = 0; i < GRID_SIZE; i++) {
+          const row = [];
           for (let j = 0; j < GRID_SIZE; j++) {
             // constructor(gridSize, id = 0, color = -1, x = -1, y = -1, radius = -1, brownian = false, mobile = false, velocity = null, maxVelocity = -1, pressPsig = 100, mw = 30, temperatureDegF=300)
             const fluidCell = new FluidCell(GRID_SIZE, i * GRID_SIZE + j, -1, i, j, -1, false, false, null, -1, 0, mw, temperatureDegF);
-            newFluidCells.push(fluidCell);
+            row.push(fluidCell);
           }
+          newFluidCells.push(row);
         }
         return newFluidCells;
       });
   }, []);
 
+  const updateTemperature = () => {
+    setFluidCells(currentCells => {
+      const totalCells = GRID_SIZE * GRID_SIZE;
+      const newCells = [...currentCells];  // Create new array for immutability
+      for (let i = 0; i < newCells.length; i++) {
+        for (let j = 0; j < newCells[0].length; j++) {
+          if (Math.random() > highPressureCellCount / totalCells) continue;
+          
+          // Only create new cell if we're modifying it
+          const oldCell = currentCells[i][j];
+          const newCell = new FluidCell(
+            GRID_SIZE,
+            oldCell.id,
+            oldCell.color,
+            oldCell.x,
+            oldCell.y,
+            oldCell.radius,
+            oldCell.brownian,
+            oldCell.mobile,
+            oldCell.velocity,
+            oldCell.maxVelocity,
+            oldCell.pressPsia - 14.6959,
+            oldCell.mw,
+            temperatureDegF
+          );
+          newCells[i][j] = newCell;
+        }
+      }
+      return newCells;
+    });
+  }
+
+  useEffect(() => {
+    if (isRunning) {
+      updateTemperature();
+    }
+  }, [temperatureDegF]);
 
   // initialize random cells to have high pressure. 
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && fluidCells.length > 0) {
 
-      setFluidCells(currentAgents => {
-        const newAgents = [];
-        for (const agent of currentAgents) {
-          if (Math.random() > highPressureCellCount / fluidCells.length) return;
-          agent.pressPsig = pressure_psig;
-          agent.setHighPressure();
-          newAgents.push(agent);
+      setFluidCells(currentCells => {
+        const totalCells = GRID_SIZE * GRID_SIZE;
+        const newCells = [...currentCells];  // Create new array for immutability
+        for (let i = 0; i < newCells.length; i++) {
+          for (let j = 0; j < newCells[0].length; j++) {
+            if (Math.random() > highPressureCellCount / totalCells) continue;
+            
+            // Only create new cell if we're modifying it
+            const oldCell = currentCells[i][j];
+            const newCell = new FluidCell(
+              GRID_SIZE,
+              oldCell.id,
+              oldCell.color,
+              oldCell.x,
+              oldCell.y,
+              oldCell.radius,
+              oldCell.brownian,
+              oldCell.mobile,
+              oldCell.velocity,
+              oldCell.maxVelocity,
+              pressure_psig,  // New high pressure
+              oldCell.mw,
+              oldCell.temperatureDegF
+            );
+            newCells[i][j] = newCell;
+          }
         }
-        return newAgents;
+        return newCells;
       });
 
       setIsInitialized(true);
     }
-  }, [isInitialized]);
+  }, [isInitialized, fluidCells]);
 
   useEffect(() => {
     
     let animationFrameId;
 
     const animate = () => {
-      setFluidCells(getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells(fluidCells, dt_sec));
+      setFluidCells(currentCells => {
+        return getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells(currentCells, dt_sec)
+      });
     }
 
     if (isRunning) {
