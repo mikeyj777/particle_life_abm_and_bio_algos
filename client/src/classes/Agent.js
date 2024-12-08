@@ -35,6 +35,7 @@ export default class Agent {
     this.maxVelocity = maxVelocity;
     this.mobile = mobile;
     this.colors = COLOR_ARRAY;
+    this.colorRgb = null;
     this.initialize()
   }
 

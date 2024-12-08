@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import FluidCell from "../classes/FluidCell";
 import GriddedView from "./GriddedView";
 import { getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells } from "../utils/fluidCalcsAndConstants";
+import { getPressureColor } from "../utils/helpers";
+
 
 const GRID_SIZE = 800;
 const pressure_psig = 300;
@@ -120,7 +122,25 @@ const FluidFlow = () => {
 
     const animate = () => {
       setFluidCells(currentCells => {
-        return getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells(currentCells, dt_sec)
+        const newCells = getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells(currentCells, dt_sec)
+        // Find pressure range
+        let minPressure = Infinity;
+        let maxPressure = -Infinity;
+        
+        newCellscells.forEach(row => {
+          row.forEach(cell => {
+            if (cell.pressPsia < minPressure) minPressure = cell.pressPsia;
+            if (cell.pressPsia > maxPressure) maxPressure = cell.pressPsia;
+          });
+        });
+
+        newCells.forEach(row => {
+          row.forEach(cell => {
+            cell.colorRgb = getPressureColor(cell.pressPsia, minPressure, maxPressure);
+          });
+        });
+
+        return newCells;
       });
     }
 
