@@ -6,6 +6,7 @@ import and include all other component stylesheets for reference */
 @import './AgentGridRenderer.css';
 @import './DefaultStylingForAnalysisAndControl.css';
 @import './ParticleSystem.css';
+@import './GriddedView.css';
 
 
 /* global styling */

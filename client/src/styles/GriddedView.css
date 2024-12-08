@@ -1,0 +1,63 @@
+.gridded-view-container {
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fff;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.gridded-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.gridded-view-title {
+  margin: 0;
+  font-size: 20px;
+}
+
+.gridded-view-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.gridded-view-button {
+  padding: 8px 16px;
+  margin: 0 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.gridded-view-button:hover {
+  background-color: #f0f0f0;
+}
+
+.gridded-view-button:active {
+  background-color: #e0e0e0;
+}
+
+.gridded-view-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.gridded-view-canvas {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+}
+
+.gridded-view-controls-container {
+  width: 100%;
+}

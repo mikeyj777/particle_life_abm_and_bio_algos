@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import FluidCell from "../classes/FluidCell";
-import TemplateGridAndControls from "./TemplateGridAndControls";
+import GriddedView from "./GriddedView";
 
 const GRID_SIZE = 800;
 const pressure_psig = 300;
@@ -42,6 +42,9 @@ const FluidFlow = () => {
   }, []);
 
   useEffect(() => {
+    
+    let animationFrameId;
+
     const animate = () => {
       setFluidCells(currentAgents => {
         const newAgents = [];
@@ -69,7 +72,7 @@ const FluidFlow = () => {
 
   return (
     <div className="full-container">
-      <TemplateGridAndControls
+      <GriddedView
         modelName="Fluid Flow"
         GRID_SIZE={GRID_SIZE}
         cells={fluidCells}
@@ -109,7 +112,7 @@ const FluidFlow = () => {
           </div>
         </div>
         
-      </TemplateGridAndControls>
+      </GriddedView>
     </div>
   );
 };

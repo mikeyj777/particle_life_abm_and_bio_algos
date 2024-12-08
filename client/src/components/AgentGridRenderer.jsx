@@ -59,8 +59,8 @@ const AgentGridRenderer = ({ agents , GRID_SIDE_x, GRID_SIDE_y = -1}) => {
   return (
     <canvas
       ref={canvasRef}
-      width={GRID_SIZE}
-      height={GRID_SIZE}
+      width={GRID_SIDE_x}
+      height={GRID_SIDE_y}
       className="agent-grid-canvas"
     />
   );
