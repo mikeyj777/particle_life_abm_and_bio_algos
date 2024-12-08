@@ -22,7 +22,7 @@ export const getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells = (fluidCel
         validNeighbors.x.push(-1);
         numSides += 1;
       }
-      if (cell.x < GRID_SIZE-1) 
+      if (cell.x < fluidCells.length-1) 
         {
           validNeighbors.x.push(1);
           numSides += 1;
@@ -31,7 +31,7 @@ export const getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells = (fluidCel
         validNeighbors.y.push(-1);
         numSides += 1;
       }
-      if (cell.y < GRID_SIZE-1) {
+      if (cell.y < fluidCells.length-1) {
         validNeighbors.y.push(1);
         numSides += 1;
       }
@@ -57,5 +57,5 @@ export const getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells = (fluidCel
       }
     }
   }
-  return currentAgents;
+  return fluidCells;
 };
