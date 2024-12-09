@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import FluidCell from "../classes/FluidCell";
 import GriddedView from "./GriddedView";
-import { getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells } from "../utils/fluidCalcsAndConstants";
+import { getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells, calculateFiniteVolumeFlow } from "../utils/fluidCalcsAndConstants";
 import { getPressureColor } from "../utils/helpers";
 
 const GRID_SIZE = 100;
@@ -138,10 +138,9 @@ const FluidFlow = () => {
       // console.log("checking in");
       setFluidCells(currentCells => {
 
-        const newCells = getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells(
+        const newCells = calculateFiniteVolumeFlow(
           currentCells, 
           dt_sec, 
-          exampleCellRef.current  // Use ref instead of state
         );
         
         let minPressure = Infinity;

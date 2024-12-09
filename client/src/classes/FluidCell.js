@@ -17,6 +17,8 @@ export default class FluidCell extends Agent {
   }
 
   getVolRateFt3Sec(deltaP = 0, area=1) {
+    if (deltaP === 0) return 0;
+    deltaP = Math.max(deltaP, 5);
     return linearVelocity_ft_sec(deltaP, this.densityLb_ft3) * area;
   }
 

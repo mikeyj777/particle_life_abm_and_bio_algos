@@ -7,7 +7,8 @@ import DiffusionLimitedAggregation_usingTemplate from './components/DiffusionLim
 import Swarm from './components/Swarm';
 import ParticleSwarm from './components/ParticleSwarm';
 import ParticleFireworks from './components/ParticleFireworks';
-import FluidFlow from './components/FluidFlow';
+// import FluidFlow from './components/FluidFlow';
+import PressureFlow from './components/PressureFlow';
 import './App.css';
 import './styles/global.css';
 
@@ -23,7 +24,8 @@ const App = () => {
           <Route path="/swarm" element={<Swarm />} />
           <Route path="/particle-swarm" element={<ParticleSwarm />} />
           <Route path="/particle-fireworks" element={<ParticleFireworks />} />
-          <Route path="/fluid-flow" element={<FluidFlow />} />
+          {/* <Route path="/fluid-flow" element={<FluidFlow />} /> */}
+          <Route path="/pressure-flow" element={<PressureFlow />} />
 
         </Routes>
       </div>

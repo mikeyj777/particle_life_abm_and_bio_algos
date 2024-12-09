@@ -7,6 +7,7 @@ import and include all other component stylesheets for reference */
 @import './DefaultStylingForAnalysisAndControl.css';
 @import './ParticleSystem.css';
 @import './GriddedView.css';
+@import './PressureFlow.css';
 
 
 /* global styling */
