@@ -1,6 +1,7 @@
 import Agent from './Agent';
 import Vector2 from "./Vector2";
 import { R_psia_ft3_lb_mol_deg_R, V_ft3, linearVelocity_ft_sec } from "../utils/fluidCalcsAndConstants";
+import { getPressureColor } from '../utils/helpers';
 
 export default class FluidCell extends Agent {
   constructor(gridSize, id = 0, color = -1, x = -1, y = -1, radius = -1, brownian = false, mobile = false, velocity = null, maxVelocity = -1, pressPsig = 100, mw = 30, temperatureDegF=300) {
@@ -34,6 +35,7 @@ export default class FluidCell extends Agent {
     const lbMoles = this.massLb / this.mw;
     this.pressPsia = (lbMoles * R_psia_ft3_lb_mol_deg_R * this.temperatureDegR) / (V_ft3);
     this.densityLb_ft3 = this.massLb / V_ft3;
+    this.colorRgb = getPressureColor(this.pressPsia, 14.6959, 300 + 14.6959);
   }
 
   getFlowPatternAndReturnTotalMassRateOut(validNeighbors, currentAgents) {

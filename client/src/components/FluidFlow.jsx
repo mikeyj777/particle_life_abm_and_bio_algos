@@ -1,14 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import FluidCell from "../classes/FluidCell";
 import GriddedView from "./GriddedView";
 import { getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells } from "../utils/fluidCalcsAndConstants";
 import { getPressureColor } from "../utils/helpers";
 
-
-const GRID_SIZE = 800;
+const GRID_SIZE = 100;
 const pressure_psig = 300;
 const mw = 30;
-const dt_sec = 0.1; 
+const dt_sec = 0.1;
 
 const FluidFlow = () => {
   const [fluidCells, setFluidCells] = useState([]);
@@ -16,40 +15,52 @@ const FluidFlow = () => {
   const [highPressureCellCount, setHighPressureCellCount] = useState(300);
   const [temperatureDegF, setTemperatureDegF] = useState(300);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [exampleCell, setExampleCell] = useState(null);
+  const animationFrameIdRef = useRef(null);
+  const lastTimeRef = useRef(0);
+  const exampleCellRef = useRef(null);  // New ref to store exampleCell
+  const [getBlankGrid, setGetBlankGrid] = useState(true);
+
+  // Update ref when exampleCell state changes
+  useEffect(() => {
+    exampleCellRef.current = exampleCell;
+  }, [exampleCell]);
 
   const handleReset = () => {
     setIsRunning(false);
-    setHighPressureCellCount(0);
+    setHighPressureCellCount(300);
     setTemperatureDegF(300);
+    setFluidCells([]);
     setIsInitialized(false);
+    setGetBlankGrid(true);
   };
 
   // populate grid with fluidCells, all at 0 pressure
   useEffect(() => {
-      setFluidCells(() => {
-        const newFluidCells = [];
-        for (let i = 0; i < GRID_SIZE; i++) {
-          const row = [];
-          for (let j = 0; j < GRID_SIZE; j++) {
-            // constructor(gridSize, id = 0, color = -1, x = -1, y = -1, radius = -1, brownian = false, mobile = false, velocity = null, maxVelocity = -1, pressPsig = 100, mw = 30, temperatureDegF=300)
-            const fluidCell = new FluidCell(GRID_SIZE, i * GRID_SIZE + j, -1, i, j, -1, false, false, null, -1, 0, mw, temperatureDegF);
-            row.push(fluidCell);
-          }
-          newFluidCells.push(row);
+    if (!getBlankGrid) return;
+    setFluidCells(() => {
+      const newFluidCells = [];
+      for (let i = 0; i < GRID_SIZE; i++) {
+        const row = [];
+        for (let j = 0; j < GRID_SIZE; j++) {
+          const fluidCell = new FluidCell(GRID_SIZE, i * GRID_SIZE + j, -1, i, j, -1, false, false, null, -1, 0, mw, temperatureDegF);
+          row.push(fluidCell);
         }
-        return newFluidCells;
-      });
-  }, []);
+        newFluidCells.push(row);
+      }
+      return newFluidCells;
+    });
+    setGetBlankGrid(false);
+  }, [getBlankGrid]);
 
-  const updateTemperature = () => {
+  const updateTemperature = useCallback(() => {
     setFluidCells(currentCells => {
       const totalCells = GRID_SIZE * GRID_SIZE;
-      const newCells = [...currentCells];  // Create new array for immutability
+      const newCells = currentCells.map(row => [...row]);
       for (let i = 0; i < newCells.length; i++) {
         for (let j = 0; j < newCells[0].length; j++) {
           if (Math.random() > highPressureCellCount / totalCells) continue;
           
-          // Only create new cell if we're modifying it
           const oldCell = currentCells[i][j];
           const newCell = new FluidCell(
             GRID_SIZE,
@@ -71,25 +82,26 @@ const FluidFlow = () => {
       }
       return newCells;
     });
-  }
+  }, [highPressureCellCount, temperatureDegF]);
 
   useEffect(() => {
     if (isRunning) {
       updateTemperature();
     }
-  }, [temperatureDegF]);
+  }, [temperatureDegF, isRunning, updateTemperature]);
 
-  // initialize random cells to have high pressure. 
   useEffect(() => {
     if (!isInitialized && fluidCells.length > 0) {
       setFluidCells(currentCells => {
         const totalCells = GRID_SIZE * GRID_SIZE;
-        const newCells = [...currentCells];  // Create new array for immutability
+        const newCells = currentCells.map(row => [...row]);
         for (let i = 0; i < newCells.length; i++) {
           for (let j = 0; j < newCells[0].length; j++) {
             if (Math.random() > highPressureCellCount / totalCells) continue;
+            if (!exampleCell) {
+              setExampleCell(newCells[i][j]);
+            }
             
-            // Only create new cell if we're modifying it
             const oldCell = currentCells[i][j];
             const newCell = new FluidCell(
               GRID_SIZE,
@@ -102,10 +114,11 @@ const FluidFlow = () => {
               oldCell.mobile,
               oldCell.velocity,
               oldCell.maxVelocity,
-              pressure_psig,  // New high pressure
+              pressure_psig,
               oldCell.mw,
               oldCell.temperatureDegF
             );
+            newCell.colorRgb = getPressureColor(newCell.pressPsia, 14.6959, pressure_psig + 14.6959);
             newCells[i][j] = newCell;
           }
         }
@@ -114,50 +127,50 @@ const FluidFlow = () => {
 
       setIsInitialized(true);
     }
-  }, [isInitialized, fluidCells]);
+  }, [isInitialized, fluidCells, exampleCell, highPressureCellCount]);
 
-  useEffect(() => {
-    
-    let animationFrameId;
+  const animate = useCallback((timestamp) => {
+    if (!lastTimeRef.current) lastTimeRef.current = timestamp;
+    const deltaTime = timestamp - lastTimeRef.current;
 
-    const animate = () => {
+    // Only update if enough time has passed (e.g., targeting 60 FPS)
+    if (deltaTime > 16.67) { // roughly 60 FPS (1000ms / 60)
+      // console.log("checking in");
       setFluidCells(currentCells => {
-        const newCells = getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells(currentCells, dt_sec)
-        // Find pressure range
+
+        const newCells = getFluidFlowFieldsForAllCellsAndReturnUpdatedFluidCells(
+          currentCells, 
+          dt_sec, 
+          exampleCellRef.current  // Use ref instead of state
+        );
+        
         let minPressure = Infinity;
         let maxPressure = -Infinity;
         
-        newCellscells.forEach(row => {
-          row.forEach(cell => {
-            if (cell.pressPsia < minPressure) minPressure = cell.pressPsia;
-            if (cell.pressPsia > maxPressure) maxPressure = cell.pressPsia;
-          });
-        });
-
-        newCells.forEach(row => {
-          row.forEach(cell => {
-            cell.colorRgb = getPressureColor(cell.pressPsia, minPressure, maxPressure);
-          });
-        });
-
         return newCells;
       });
+
+      lastTimeRef.current = timestamp;
     }
 
     if (isRunning) {
-      animationFrameId = requestAnimationFrame(animate);
+      animationFrameIdRef.current = requestAnimationFrame(animate);
     }
+  }, [isRunning]); // Removed exampleCell from dependencies
 
-    animationFrameId = requestAnimationFrame(animate);
-
+  useEffect(() => {
+    if (isRunning) {
+      animationFrameIdRef.current = requestAnimationFrame(animate);
+    }
+    
     return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+        animationFrameIdRef.current = null;
       }
     };
-  }, [isRunning, isInitialized, highPressureCellCount, temperatureDegF]);
+  }, [isRunning, animate]);
 
-  
   return (
     <div className="full-container">
       <GriddedView
@@ -167,8 +180,8 @@ const FluidFlow = () => {
         isRunning={isRunning}
         setIsRunning={setIsRunning}
         handleReset={handleReset}
+        exampleCell={exampleCell}
       >
-        {/* Swarm-specific controls rendered as children */}
         <div className="control-section">
           <label>Temperature:</label>
           <input
@@ -184,7 +197,6 @@ const FluidFlow = () => {
           </div>
         </div>
 
-        {/* Swarm-specific controls rendered as children */}
         <div className="control-section">
           <label>High Pressure Cells:</label>
           <input
@@ -196,10 +208,9 @@ const FluidFlow = () => {
             step={10}
           />
           <div className="stat-item">
-            High Pessure Cell Count: {highPressureCellCount}
+            High Pressure Cell Count: {highPressureCellCount}
           </div>
         </div>
-        
       </GriddedView>
     </div>
   );

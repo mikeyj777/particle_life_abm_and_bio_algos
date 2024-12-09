@@ -7,7 +7,7 @@ const Home = () => {
 
   const welcomePhrases = [
     "Welcome to the coolest React app ever! 🚀",
-    "Hey there, gorgeous! Ready to build something amazing? ✨",
+    "Hello! Ready to build something amazing? ✨",
     "You've arrived at your digital destination! 🌟",
     "Congratulations! You've successfully started your journey! 🎉",
     "Welcome aboard the React express! Next stop: Awesome! 🚂",
