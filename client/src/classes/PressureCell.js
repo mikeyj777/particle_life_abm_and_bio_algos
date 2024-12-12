@@ -1,14 +1,16 @@
-// claude generated
-
 import { PHYSICAL_CONSTANTS as C, PRESSURE_RANGES } from '../utils/fluidCalcsAndConstants';
 
 class PressureCell {
+  static R = C.R;        // Universal gas constant ft-lbf/(lb-mol°R)
+  static MW = C.MW;      // Molecular weight lb/lb-mol
+  static ATM = C.ATM;    // Atmospheric pressure psia
+
   constructor(x, y, pressure, temperature) {
     this.x = x;
     this.y = y;
-    this.pressure = pressure + C.ATM;
-    this.temperature = temperature + 459.67;
-    this.volume = 1.0;
+    this.pressure = pressure + C.ATM;  // Convert gauge to absolute pressure
+    this.temperature = temperature + 459.67;  // Convert °F to °R
+    this.volume = 1.0;  // ft³
     this.mass = this.calculateMass();
     this.baseMass = this.calculateMassAtAtm();
     this.flows = { north: 0, south: 0, east: 0, west: 0 };
@@ -40,16 +42,23 @@ class PressureCell {
 
   updateColor() {
     const colorStops = [
-      { percent: 0, color: {r: 135, g: 206, b: 235} },
-      { percent: 25, color: {r: 255, g: 255, b: 0} },
-      { percent: 50, color: {r: 0, g: 255, b: 0} },
-      { percent: 75, color: {r: 255, g: 165, b: 0} },
-      { percent: 100, color: {r: 255, g: 0, b: 0} }
+      { percent: 0, color: {r: 135, g: 206, b: 235} },    // Light blue
+      { percent: 25, color: {r: 255, g: 255, b: 0} },     // Yellow
+      { percent: 50, color: {r: 0, g: 255, b: 0} },       // Green
+      { percent: 75, color: {r: 255, g: 165, b: 0} },     // Orange
+      { percent: 100, color: {r: 255, g: 0, b: 0} }       // Red
     ];
     
-    const percentage = (this.getPressureGauge() / PRESSURE_RANGES.MAX) * 100;
+    // Clamp percentage between 0 and 100
+    const percentage = Math.min(100, Math.max(0, 
+      (this.getPressureGauge() / PRESSURE_RANGES.MAX) * 100
+    ));
+
+    // Find the appropriate color stop indices
     let i = 0;
-    while (i < colorStops.length - 1 && percentage > colorStops[i + 1].percent) i++;
+    while (i < colorStops.length - 2 && percentage > colorStops[i + 1].percent) {
+      i++;
+    }
     
     const c1 = colorStops[i].color;
     const c2 = colorStops[i + 1].color;
@@ -67,7 +76,7 @@ class PressureCell {
 
     const deltaP = this.pressure - neighbor.pressure;
     const upstreamDensity = this.calculateDensity();
-    const deltaPressure = deltaP * 144;
+    const deltaPressure = deltaP * 144; // Convert psi to psf
     
     const velocity = C.C * Math.sqrt(
       (2 * C.GCCONV * deltaPressure) / upstreamDensity
@@ -92,9 +101,9 @@ class PressureCell {
   }
 
   updateTemperature(newTemp) {
-    this.temperature = newTemp + 459.67;
+    this.temperature = newTemp + 459.67;  // Convert °F to °R
     this.baseMass = this.calculateMassAtAtm();
-    this.updateMass(0);
+    this.updateMass(0);  // Recalculate pressure with new temperature
   }
 
   resetFlows() {
